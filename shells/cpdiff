@@ -1,0 +1,73 @@
+#!/bin/bash
+
+# Description:
+#   分拣操作： 拷贝差分文件
+#   array中写好需要移植的文件的相对路径
+#   srcdir是源目录， distdir是拷贝目标目录
+# Author:
+#   chaofeng.dong
+# Usage:
+#   cat diff_files | /opt/shells/cpdiff $srcdir $distdir
+
+
+array=()
+
+# Description:
+#   可以通过管道将输出堆入stdin中
+readDiffFiles () {
+    local i=0
+    local empline=0
+    while read line
+    do
+        if [ "$line" == '' ]; then 
+            let empline=1+$empline
+        fi
+
+        if (($empline >= 2)) ; then
+            break
+        fi
+        array[$i]=$line
+        let i=1+$i
+    done
+
+}
+
+# 拷贝文件
+copyfile() {
+    if [ -f "$1" ]; then
+        # 截取文件目录
+        dir=${2%/*} 
+        if [ ! -d $dir ]; then 
+            echo -e "creating floders:\t" $dir
+            mkdir -p $dir
+        fi
+        echo "拷贝 [$1] 到 [$2]"
+        cp $1 $2
+    fi
+}
+
+readDiffFiles
+
+echo "源目录路径: $1"
+srcdir=$(realpath $1)
+echo "目标路径: $2"
+distdir=$(realpath $2)
+if [ ! -d $srcdir ];then
+    echo "ERR: srcdir [$srcdir] is not a valid dir path."
+    exit 1
+fi
+if [ ! -d $distdir ];then
+    if [ -d $(dirname $distdir) ]; then
+        mkdir $distdir
+    else
+        echo "ERR: distdir [$distdir] is not a valid dir path."
+        exit 1
+    fi
+fi
+
+for element in ${array[@]}
+do 
+    copyfile $srcdir/$element $distdir/$element
+done
+
+
