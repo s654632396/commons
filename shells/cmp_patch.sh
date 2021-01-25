@@ -158,7 +158,7 @@ listFiles() {
 # 查找目标目录对应的文件
 findTargetFile() {
   local patch_file=$1
-  local relate_patch_file=${patch_file#*${PatchDir}}
+  local relate_patch_file=${patch_file#${PATCH_PATH_PREFIX}/*}
   local patch_keyword=${relate_patch_file%%/*}
   local relate_path=${relate_patch_file#*/}
   local tgPathPrefix="/tmp/"
