@@ -33,7 +33,7 @@ SHELL_FOLDER=$(
   cd "$(dirname "$0")"
   pwd
 )
-DefaultPatchPrefixPath=$(SHELL_FOLDER)
+DefaultPatchPrefixPath=${SHELL_FOLDER}
 DefaultTargetPrefixPath="/data/www"
 
 TEMPLATE=$(getopt -o P:T: --longoptions patch-path:,target-path: -n 'cmp_patch.sh' -- "$@")
@@ -69,14 +69,24 @@ declare -i idx=1
 for arg; do
   case "${idx}" in
   1)
+
     PatchPathName=$arg
     ;;
   2)
+
     TargetPathName=$arg
     ;;
   esac
   idx=${idx}+1
 done
+if [[ '' = $PatchPathName ]]; then
+  echo "Must have arguments patch_path."
+  exit 1
+fi
+if [[ '' = $TargetPathName ]]; then
+  echo "Must have arguments target_path."
+  exit 1
+fi
 
 if [[ '' = ${PATCH_PATH_PREFIX} && ${PatchPathName} == /* ]]; then
   PatchPath=${PatchPathName}
